@@ -1,0 +1,11 @@
+{
+  "name": "Spell Check",
+  "id": "1147889351300144942",
+  "api": "1.0.0",
+  "main": "code.js",
+  "editorType": [
+    "figma",
+    "figjam"
+  ],
+  "ui": "ui.html"
+}

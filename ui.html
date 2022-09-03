@@ -1,17 +1,26 @@
-<h2>Shape Creator</h2>
-<p>Count: <input id="count" type="number" value="5"></p>
-<button id="create">Create</button>
-<button id="cancel">Cancel</button>
+<style type="text/css">
+  @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+  body {
+    background-color: var(--figma-color-bg);
+    color: var(--figma-color-text);
+  }
+  h2 {
+    font-family: 'Roboto', sans-serif;
+    color: var(--figma-color-text);
+  }
+  p { font-family: 'Roboto', sans-serif; } 
+</style>
+
+<h2>Spell Check</h2>
+
+<p id="json-test"></p>
+
+
 <script>
 
-document.getElementById('create').onclick = () => {
-  const textbox = document.getElementById('count');
-  const count = parseInt(textbox.value, 10);
-  parent.postMessage({ pluginMessage: { type: 'create-shapes', count } }, '*')
-}
-
-document.getElementById('cancel').onclick = () => {
-  parent.postMessage({ pluginMessage: { type: 'cancel' } }, '*')
-}
+onmessage = (event) => {
+  var dataSent = event.data.pluginMessage;
+  document.getElementById("json-test").innerHTML = document.getElementById("json-test").innerHTML + "<br>" + dataSent;
+};
 
 </script>

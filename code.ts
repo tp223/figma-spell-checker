@@ -15,6 +15,7 @@ function findAllTextStringsAndIds(): { nodeText: string[]; nodeId: string[] } {
 
 // Runs this code if the plugin is run in Figma
 if (figma.editorType === 'figma') {
+  var mistakeData = [];
   // This plugin will open a window to prompt the user to enter a number, and
   // it will then create that many rectangles on the screen.
 
@@ -26,9 +27,24 @@ if (figma.editorType === 'figma') {
   console.log("Loading all text elements");
 
   for (var currentNode in allNodes.nodeText) {
-    figma.ui.postMessage(allNodes.nodeText[currentNode]);
+    // figma.ui.postMessage(allNodes.nodeText[currentNode]);
+    mistakeData.push({nodeId: allNodes.nodeId[currentNode], nodeText: allNodes.nodeText[currentNode]});
   }
 
+  figma.ui.postMessage(mistakeData);
+
+  figma.ui.onmessage = async (msg) => {
+    if (msg.type == "SELECT") {
+      const selection = figma.currentPage.selection.slice()
+      var selectNode = figma.root.findOne(node => node.id === msg.nodeId);
+      if (selectNode?.type == "TEXT") {
+        selection.push(selectNode);
+        figma.currentPage.selectedTextRange = { node: selectNode, start: parseInt(msg.textStart), end: parseInt(msg.textEnd) };
+        console.log("Text Selected");
+      }
+      //figma.currentPage.selection = selection;
+    }
+  }
 // If the plugins isn't run in Figma, run this code
 } else {
   // This plugin will open a window to prompt the user to enter a number, and

@@ -13,7 +13,12 @@
 
 <h2>Spell Check</h2>
 
-<p id="json-test"></p>
+<p id="header-msg"></p>
+
+<div id="current-spelling">
+  <p id="current-spelling-head"></p>
+  <p id="current-spelling-suggestions"></p>
+</div>
 
 <script>
 function set_valid_word_list (word_list){
@@ -91,6 +96,7 @@ function shift_score(x, y){
     
     return Math.max(l2, l1, c, r1, r2);
 }
+document.getElementById("header-msg").innerHTML = "Fetching dictionary...";
 
 var xmlHttp = new XMLHttpRequest();
 xmlHttp.open( "GET", "https://cdn.electrokid.co.uk/words.txt", false );
@@ -100,19 +106,36 @@ var english_word_list = xmlHttp.responseText.toLowerCase().split("\n");
 
 set_valid_word_list(english_word_list);
 
+var ignore_list = [];
+var current_mistakes = [];
+var current_mistake_index = 0;
+var current_word_index = 0;
+
 onmessage = (event) => {
   var dataSent = event.data.pluginMessage;
-  document.getElementById("json-test").innerHTML = document.getElementById("json-test").innerHTML + "<br>" + dataSent;
+  console.log(dataSent);
+  document.getElementById("header-msg").innerHTML = "Loading spelling...";
 
-  var wordArray = dataSent.split(/[\s,\-]+/);
-
-  for (currentWord in wordArray) {
-    if (!wordArray[currentWord].includes("@") && !wordArray[currentWord].includes("http://") && !wordArray[currentWord].includes("https://") && !english_word_list.includes(wordArray[currentWord].replace(/[^a-zA-Z ]/g, "").toLowerCase())) {
-      console.log(wordArray[currentWord].toLowerCase().replace(/[^a-zA-Z ]/g, ""));
-      console.log(wordArray[currentWord]);
-      console.log(find_similar(wordArray[currentWord].toLowerCase().replace(/[^a-zA-Z ]/g, ""), 0.5));
+  for (var currentElementIndex in dataSent) {
+    var wordArray = dataSent[currentElementIndex].nodeText.split(/[\s,\-]+/);
+    // Find all mistakes
+    for (currentWord in wordArray) {
+      if (!wordArray[currentWord].includes("@") && !wordArray[currentWord].includes("http://") && !wordArray[currentWord].includes("https://") && !english_word_list.includes(wordArray[currentWord].replace(/[^a-zA-Z ]/g, "").toLowerCase())) {
+        current_mistakes.push({ word: wordArray[currentWord], wordIndex: currentWord, wordStart: current_word_index, nodeId: dataSent[currentElementIndex].nodeId, elementIndex: currentElementIndex, spellingSuggest: find_similar(wordArray[currentWord].toLowerCase().replace(/[^a-zA-Z ]/g, ""), 0.5)})
+      }
+      current_word_index += wordArray[currentWord].length + 1;
     }
+    current_word_index = 0;
   }
+
+  console.log(current_mistakes);
+
+  document.getElementById("header-msg").innerHTML = "Check Spelling:";
+  document.getElementById("current-spelling-head").innerHTML = current_mistakes[0].word;
+  document.getElementById("current-spelling-suggestions").innerHTML = current_mistakes[0].spellingSuggest[0][0];
+
+  var endSelect = parseInt(current_mistakes[0].wordStart) + parseInt(current_mistakes[0].word.length);
+  parent.postMessage({pluginMessage: {type: "SELECT", nodeId: current_mistakes[0].nodeId, textStart: current_mistakes[0].wordStart, textEnd: endSelect}}, '*');
 };
 
 </script>

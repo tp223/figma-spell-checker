@@ -34,7 +34,7 @@
 
   <ul class="list-group" id="current-spelling-suggestions"></ul>
   <button type="button" class="btn btn-secondary mt-2">Add To Dictionary</button>
-  <button type="button" class="btn btn-secondary mt-2">Ignore</button>
+  <button type="button" class="btn btn-secondary mt-2" onclick="nextSuggestion();">Ignore</button>
 </div>
 
 <script>
@@ -145,20 +145,33 @@ onmessage = (event) => {
 
   console.log(current_mistakes);
 
-  document.getElementById("current-spelling-head").value = current_mistakes[0].word;
+  current_mistake_index = 0;
+  showSuggestion(0);
+};
+
+function showSuggestion(suggestionIndex) {
+  document.getElementById("current-spelling-head").value = current_mistakes[suggestionIndex].word;
   document.getElementById("current-spelling-suggestions").innerHTML = "";
 
-
-  for (var spellingSuggestion in current_mistakes[0].spellingSuggest[0]) {
-    document.getElementById("current-spelling-suggestions").innerHTML = document.getElementById("current-spelling-suggestions").innerHTML + "<li class='list-group-item'>" + current_mistakes[0].spellingSuggest[0][spellingSuggestion] + "</li>";
+  for (var spellingSuggestion in current_mistakes[suggestionIndex].spellingSuggest[0]) {
+    document.getElementById("current-spelling-suggestions").innerHTML = document.getElementById("current-spelling-suggestions").innerHTML + "<li class='list-group-item'>" + current_mistakes[suggestionIndex].spellingSuggest[0][spellingSuggestion] + "</li>";
   }
 
   document.getElementById("loading-overlay").style.display = "none";
 
-  var endSelect = parseInt(current_mistakes[0].wordStart) + parseInt(current_mistakes[0].word.length);
-  parent.postMessage({pluginMessage: {type: "SELECT", nodeId: current_mistakes[0].nodeId, textStart: current_mistakes[0].wordStart, textEnd: endSelect}}, '*');
+  var endSelect = parseInt(current_mistakes[suggestionIndex].wordStart) + parseInt(current_mistakes[suggestionIndex].word.length);
+  parent.postMessage({pluginMessage: {type: "SELECT", nodeId: current_mistakes[suggestionIndex].nodeId, textStart: current_mistakes[suggestionIndex].wordStart, textEnd: endSelect}}, '*');
 
   parent.postMessage({pluginMessage: {type: "RESIZE", height: document.body.offsetHeight }}, '*');
-};
+}
+
+function nextSuggestion() {
+  current_mistake_index += 1;
+  if (current_mistake_index == current_mistakes.length) {
+    current_mistake_index = 0;
+  }
+
+  showSuggestion(current_mistake_index);
+}
 
 </script>

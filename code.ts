@@ -35,11 +35,12 @@ if (figma.editorType === 'figma') {
 
   figma.ui.onmessage = async (msg) => {
     if (msg.type == "SELECT") {
-      const selection = figma.currentPage.selection.slice()
       var selectNode = figma.root.findOne(node => node.id === msg.nodeId);
       if (selectNode?.type == "TEXT") {
-        selection.push(selectNode);
         figma.currentPage.selectedTextRange = { node: selectNode, start: parseInt(msg.textStart), end: parseInt(msg.textEnd) };
+        if (selectNode.parent !== null) {
+          figma.viewport.scrollAndZoomIntoView([selectNode]);
+        }
         console.log("Text Selected");
       }
       //figma.currentPage.selection = selection;

@@ -46,6 +46,13 @@ if (figma.editorType === 'figma') {
       //figma.currentPage.selection = selection;
     } else if (msg.type == "RESIZE") {
       figma.ui.resize(300, parseInt(msg.height))
+    } else if (msg.type == "REFRESH") {
+      var mistakeData = [];
+      for (var currentNode in allNodes.nodeText) {
+        // figma.ui.postMessage(allNodes.nodeText[currentNode]);
+        mistakeData.push({nodeId: allNodes.nodeId[currentNode], nodeText: allNodes.nodeText[currentNode]});
+      }
+      figma.ui.postMessage(mistakeData);
     }
   }
 // If the plugins isn't run in Figma, run this code

@@ -43,6 +43,8 @@ if (figma.editorType === 'figma') {
         console.log("Text Selected");
       }
       //figma.currentPage.selection = selection;
+    } else if (msg.type == "RESIZE") {
+      figma.ui.resize(300, parseInt(msg.height))
     }
   }
 // If the plugins isn't run in Figma, run this code
